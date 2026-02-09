@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>イベントアンケート集計結果 第1回</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#F5F0EB;--card:#FFFFFF;--ink:#1A1A2E;--ink-sub:#5C5C6F;--accent:#D64933;--accent2:#2D6A4F;--accent3:#264653;--border:#E0D8CF;--shadow:0 2px 16px rgba(26,26,46,0.06);--radius:14px; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .header{background:linear-gradient(135deg,#264653 0%,#1A1A2E 100%);color:#fff;padding:48px 40px 40px;position:relative;overflow:hidden}
+  .header::before{content:'';position:absolute;top:-60%;right:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(214,73,51,.15) 0%,transparent 70%);border-radius:50%}
+  .header h1{font-family:'Zen Maru Gothic',sans-serif;font-size:28px;font-weight:700;letter-spacing:.02em;position:relative;z-index:1}
+  .header .subtitle{font-size:14px;opacity:.7;margin-top:6px;font-weight:300;position:relative;z-index:1}
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;padding:0 32px;margin-top:-28px;position:relative;z-index:2}
+  .kpi{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border-left:4px solid var(--accent);animation:slideUp .5s ease both}
+  .kpi:nth-child(2){border-left-color:var(--accent2);animation-delay:.06s}
+  .kpi:nth-child(3){border-left-color:var(--accent3);animation-delay:.12s}
+  .kpi:nth-child(4){border-left-color:#E9C46A;animation-delay:.18s}
+  .kpi .label{font-size:11px;color:var(--ink-sub);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+  .kpi .value{font-family:'Zen Maru Gothic',sans-serif;font-size:32px;font-weight:700;margin-top:2px}
+  .kpi .note{font-size:11px;color:var(--ink-sub);margin-top:2px}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .container{max-width:1320px;margin:0 auto;padding:32px}
+  .q-section{background:var(--card);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);margin-bottom:28px;animation:slideUp .5s ease both}
+  .q-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;border-bottom:2px solid var(--bg);padding-bottom:16px;flex-wrap:wrap}
+  .q-tag{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--accent3);padding:4px 14px;border-radius:20px;letter-spacing:.05em;flex-shrink:0}
+  .q-header h2{font-family:'Zen Maru Gothic',sans-serif;font-size:17px;font-weight:700;color:var(--ink)}
+  .q-header .n-label{margin-left:auto;font-size:12px;color:var(--ink-sub);flex-shrink:0}
+  .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+  @media(max-width:860px){.chart-row{grid-template-columns:1fr}}
+  .chart-col{position:relative}
+  .chart-col h3{font-size:12px;color:var(--ink-sub);font-weight:500;margin-bottom:12px;text-align:center;letter-spacing:.04em}
+  .chart-col canvas{width:100%!important}
+  .q3-group{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:28px;overflow:hidden;animation:slideUp .5s ease both}
+  .q3-group .q3-main{padding:32px 32px 24px}
+  .q3-sub{background:#F9F7F4;border-top:2px dashed var(--border);padding:28px 32px 32px;position:relative}
+  .connector-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--accent2);color:#fff;font-size:10px;font-weight:700;padding:4px 16px;border-radius:20px;letter-spacing:.04em;white-space:nowrap}
+  .sub-note{font-size:12px;font-weight:600;color:var(--accent2);margin-bottom:16px;letter-spacing:.03em}
+  .footer{text-align:center;padding:32px;font-size:12px;color:var(--ink-sub);opacity:.6}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 イベントアンケート集計結果</h1>
+  <div class="subtitle">第1回 ｜ 有効回答数 92件</div>
+</div>
+<div class="kpi-strip">
+  <div class="kpi"><div class="label">有効回答</div><div class="value">92<span style="font-size:16px;font-weight:400">件</span></div></div>
+  <div class="kpi"><div class="label">関心が高まった</div><div class="value">90.2<span style="font-size:16px;font-weight:400">%</span></div><div class="note">83名 / 92名</div></div>
+  <div class="kpi"><div class="label">購入者割合</div><div class="value">53.3<span style="font-size:16px;font-weight:400">%</span></div><div class="note">49名が購入</div></div>
+  <div class="kpi"><div class="label">最多来場きっかけ</div><div class="value" style="font-size:22px">通りがかり</div><div class="note">83.7%（77名）</div></div>
+</div>
+
+<div class="container">
+  <div class="q-section"><div class="q-header"><span class="q-tag">Q1</span><h2>年齢について教えてください</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><canvas id="q1Bar"></canvas></div><div class="chart-col"><h3>円グラフ</h3><canvas id="q1Pie"></canvas></div></div></div>
+  <div class="q-section"><div class="q-header"><span class="q-tag">Q2</span><h2>性別について教えてください</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><canvas id="q2Bar"></canvas></div><div class="chart-col"><h3>円グラフ</h3><canvas id="q2Pie"></canvas></div></div></div>
+
+  <div class="q3-group">
+    <div class="q3-main"><div class="q-header"><span class="q-tag">Q3</span><h2>お住まいについて教えてください</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><canvas id="q3Bar"></canvas></div><div class="chart-col"><h3>円グラフ</h3><canvas id="q3Pie"></canvas></div></div></div>
+    <div class="q3-sub">
+      <div class="connector-badge">▼ Q3で「仙台市内」と回答した 64名 の内訳</div>
+      <div class="sub-note">▼ 上記「仙台市内」64名のうち、お住まいの区の内訳</div>
+      <div class="q-header" style="border:none;padding:0;margin-bottom:20px"><span class="q-tag" style="background:#2D6A4F">Q3-2</span><h2>お住まいの区を教えてください</h2><span class="n-label">N=64（仙台市内回答者）</span></div>
+      <div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><canvas id="q32Bar"></canvas></div><div class="chart-col"><h3>円グラフ</h3><canvas id="q32Pie"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="q-section"><div class="q-header"><span class="q-tag">Q4</span><h2>来場きっかけ（複数回答）</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><div style="height:320px"><canvas id="q4Bar"></canvas></div></div><div class="chart-col"><h3>円グラフ</h3><canvas id="q4Pie"></canvas></div></div></div>
+  <div class="q-section"><div class="q-header"><span class="q-tag">Q5</span><h2>購入金額（おひとり様あたり）</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><canvas id="q5Bar"></canvas></div><div class="chart-col"><h3>円グラフ</h3><canvas id="q5Pie"></canvas></div></div></div>
+  <div class="q-section"><div class="q-header"><span class="q-tag">Q6</span><h2>魅力を感じたブース（複数回答）</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><div style="height:540px"><canvas id="q6Bar"></canvas></div></div><div class="chart-col"><h3>円グラフ（上位4のみラベル表示）</h3><canvas id="q6Pie"></canvas></div></div></div>
+  <div class="q-section"><div class="q-header"><span class="q-tag">Q7</span><h2>東北の各地域への関心が高まりましたか？</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><canvas id="q7Bar"></canvas></div><div class="chart-col"><h3>円グラフ</h3><canvas id="q7Pie"></canvas></div></div></div>
+  <div class="q-section"><div class="q-header"><span class="q-tag">Q8</span><h2>イベント感想（複数回答）</h2><span class="n-label">N=92</span></div><div class="chart-row"><div class="chart-col"><h3>棒グラフ</h3><div style="height:380px"><canvas id="q8Bar"></canvas></div></div><div class="chart-col"><h3>円グラフ（上位4のみラベル表示）</h3><canvas id="q8Pie"></canvas></div></div></div>
+</div>
+<div class="footer">イベントアンケート集計結果 第1回 ｜ N=92</div>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Noto Sans JP', sans-serif";
+Chart.defaults.font.size = 22;
+Chart.defaults.color = '#5C5C6F';
+
+const C = ['#264653','#2A9D8F','#E9C46A','#F4A261','#D64933','#6A4C93','#1982C4','#8AC926','#BC6C25','#606C38','#DDA15E','#C77DFF','#588157'];
+
+/* ================================================================
+   スマート円グラフプラグイン
+   - セグメントが十分大きい → 円内にラベル
+   - セグメントが小さい   → 引き出し線で外にラベル
+   - topN制限対応（Q6, Q8用）
+   ================================================================ */
+const smartPiePlugin = {
+  id: 'smartPieLabels',
+  afterDraw(chart) {
+    const cfg = chart.config.options.plugins.smartPieLabels;
+    if (!cfg || !cfg.enabled) return;
+    const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.data.length) return;
+
+    const ctx = chart.ctx;
+    const data = chart.data.datasets[0].data;
+    const total = data.reduce((a, b) => a + b, 0);
+    if (total === 0) return;
+
+    const topN = cfg.topN || 999;
+    const threshold = cfg.threshold || 0.08; // 8%未満は「小さい」
+
+    // 上位N件のインデックス
+    const ranked = data.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
+    const topSet = new Set(ranked.slice(0, topN).map(x => x.i));
+
+    // 引き出し線で外に出すもの（左右振り分け）
+    const outerLeft = [];
+    const outerRight = [];
+
+    meta.data.forEach((arc, i) => {
+      if (!topSet.has(i)) return;
+      const v = data[i];
+      if (v === 0) return;
+
+      const ratio = v / total;
+      const pct = (ratio * 100).toFixed(1);
+      const txt = v + '件\n' + pct + '%';
+      const txtOneLine = v + '件 (' + pct + '%)';
+
+      const midAngle = (arc.startAngle + arc.endAngle) / 2;
+      const cos = Math.cos(midAngle);
+      const sin = Math.sin(midAngle);
+      const { x: cx, y: cy } = arc.getCenterPoint();
+      const outerR = arc.outerRadius;
+
+      if (ratio >= threshold) {
+        // ── 大きいセグメント: 円内にラベル ──
+        const labelR = outerR * 0.6;
+        const lx = cx + labelR * cos;
+        const ly = cy + labelR * sin;
+
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 18px "Noto Sans JP", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = 3;
+
+        const lines = txt.split('\n');
+        const lineH = 22;
+        const startY = ly - (lines.length - 1) * lineH / 2;
+        lines.forEach((line, li) => {
+          ctx.fillText(line, lx, startY + li * lineH);
+        });
+        ctx.restore();
+      } else {
+        // ── 小さいセグメント: 引き出し線で外へ ──
+        const isRight = cos >= 0;
+        const p1x = cx + outerR * 0.88 * cos;
+        const p1y = cy + outerR * 0.88 * sin;
+        const elbowLen = outerR * 0.25;
+        const p2x = cx + (outerR + elbowLen) * cos;
+        const p2y = cy + (outerR + elbowLen) * sin;
+        const item = {
+          txt: txtOneLine, p1x, p1y, p2x, p2y,
+          naturalY: p2y, finalY: p2y,
+          isRight,
+          color: chart.data.datasets[0].backgroundColor[i] || C[i % C.length]
+        };
+        if (isRight) outerRight.push(item); else outerLeft.push(item);
+      }
+    });
+
+    // 重なり回避
+    function resolveOverlap(items) {
+      items.sort((a, b) => a.naturalY - b.naturalY);
+      const gap = 26;
+      for (let pass = 0; pass < 15; pass++) {
+        let moved = false;
+        for (let j = 1; j < items.length; j++) {
+          const diff = items[j].finalY - items[j - 1].finalY;
+          if (diff < gap) {
+            const shift = (gap - diff) / 2 + 1;
+            items[j - 1].finalY -= shift;
+            items[j].finalY += shift;
+            moved = true;
+          }
+        }
+        if (!moved) break;
+      }
+    }
+    resolveOverlap(outerLeft);
+    resolveOverlap(outerRight);
+
+    // 引き出し線描画
+    function drawOuter(items) {
+      items.forEach(lb => {
+        const endX = lb.isRight ? lb.p2x + 24 : lb.p2x - 24;
+        ctx.save();
+
+        // 線
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(lb.p1x, lb.p1y);
+        ctx.lineTo(lb.p2x, lb.naturalY);
+        ctx.lineTo(endX, lb.finalY);
+        ctx.stroke();
+
+        // 起点ドット
+        ctx.fillStyle = lb.color;
+        ctx.beginPath();
+        ctx.arc(lb.p1x, lb.p1y, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // テキスト
+        ctx.fillStyle = '#1A1A2E';
+        ctx.font = 'bold 16px "Noto Sans JP", sans-serif';
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = lb.isRight ? 'left' : 'right';
+        ctx.fillText(lb.txt, lb.isRight ? endX + 5 : endX - 5, lb.finalY);
+        ctx.restore();
+      });
+    }
+    drawOuter(outerLeft);
+    drawOuter(outerRight);
+  }
+};
+Chart.register(smartPiePlugin);
+
+/* ================================================================
+   棒グラフ
+   ================================================================ */
+function makeBar(id, labels, data, colors, horizontal) {
+  new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: Array.isArray(colors) ? colors : labels.map((_, i) => C[i % C.length]),
+        borderRadius: 6,
+        maxBarThickness: horizontal ? 28 : 48
+      }]
+    },
+    options: {
+      indexAxis: horizontal ? 'y' : 'x',
+      responsive: true,
+      maintainAspectRatio: !horizontal,
+      layout: { padding: { top: horizontal ? 0 : 24, right: horizontal ? 80 : 0 } },
+      plugins: {
+        legend: { display: false },
+        smartPieLabels: { enabled: false },
+        datalabels: {
+          anchor: 'end',
+          align: horizontal ? 'right' : 'top',
+          offset: 4,
+          font: { size: 22, weight: 600 },
+          color: '#1A1A2E',
+          formatter: v => v + '件'
+        },
+        tooltip: {
+          backgroundColor: '#1A1A2E', cornerRadius: 8, padding: 10,
+          titleFont: { size: 18 }, bodyFont: { size: 18 },
+          callbacks: { label: c => c.parsed[horizontal ? 'x' : 'y'] + '件' }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: horizontal, color: '#E0D8CF44' },
+          ticks: { maxRotation: 0, font: { size: 20 } },
+          beginAtZero: true,
+          suggestedMax: horizontal ? Math.max(...data) * 1.25 : undefined
+        },
+        y: {
+          grid: { display: !horizontal, color: '#E0D8CF44' },
+          beginAtZero: true,
+          suggestedMax: !horizontal ? Math.max(...data) * 1.2 : undefined,
+          ticks: { font: { size: 20 } }
+        }
+      }
+    }
+  });
+}
+
+/* ================================================================
+   円グラフ（スマートラベル方式）
+   threshold: この割合未満のセグメントは引き出し線
+   topN: ラベル表示する上位N件（Q6/Q8で4を指定）
+   ================================================================ */
+function makePie(id, labels, data, colors, topN, threshold) {
+  const total = data.reduce((a, b) => a + b, 0);
+  new Chart(document.getElementById(id), {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors || labels.map((_, i) => C[i % C.length]),
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      layout: { padding: { top: 40, bottom: 10, left: 50, right: 50 } },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { padding: 14, usePointStyle: true, pointStyle: 'circle', font: { size: 18 } }
+        },
+        smartPieLabels: {
+          enabled: true,
+          topN: topN || 999,
+          threshold: threshold !== undefined ? threshold : 0.08
+        },
+        datalabels: { display: false },
+        tooltip: {
+          backgroundColor: '#1A1A2E', cornerRadius: 8, padding: 10,
+          titleFont: { size: 18 }, bodyFont: { size: 18 },
+          callbacks: { label: c => c.label + ': ' + c.parsed + '件 (' + (c.parsed / total * 100).toFixed(1) + '%)' }
+        }
+      }
+    }
+  });
+}
+
+/* ── Q1 年齢 ── */
+makeBar('q1Bar', ['10〜19歳','20〜29歳','30〜39歳','40〜49歳','50〜59歳','60歳〜'], [4,14,26,24,12,12], C, false);
+makePie('q1Pie', ['10〜19歳','20〜29歳','30〜39歳','40〜49歳','50〜59歳','60歳〜'], [4,14,26,24,12,12], C);
+
+/* ── Q2 性別 ── */
+const q2C = ['#264653','#D64933','#E9C46A','#CCCCCC'];
+makeBar('q2Bar', ['男性','女性','その他','無回答'], [44,46,1,1], q2C, false);
+makePie('q2Pie', ['男性','女性','その他','無回答'], [44,46,1,1], q2C);
+
+/* ── Q3 お住まい ── */
+const q3C = ['#2A9D8F','#E9C46A','#F4A261'];
+makeBar('q3Bar', ['仙台市内','宮城県内\n(仙台市外)','その他'], [64,17,11], q3C, false);
+makePie('q3Pie', ['仙台市内','宮城県内(仙台市外)','その他'], [64,17,11], q3C);
+
+/* ── Q3-2 仙台市内の区 ── */
+const q32C = ['#264653','#2A9D8F','#E9C46A','#F4A261','#D64933'];
+makeBar('q32Bar', ['青葉区','宮城野区','泉区','若林区','太白区'], [33,12,9,6,4], q32C, false);
+makePie('q32Pie', ['青葉区','宮城野区','泉区','若林区','太白区'], [33,12,9,6,4], q32C, undefined, 0.08);
+
+/* ── Q4 来場きっかけ ── */
+makeBar('q4Bar', ['通りがかり','友人・家族に誘われて','バンバルセンダイ目的','その他','WEBサイト','ポスター','チラシ','SNS'], [77,6,4,3,2,2,1,1], C, true);
+makePie('q4Pie', ['通りがかり','友人・家族に誘われて','バンバルセンダイ目的','その他','WEBサイト','ポスター','チラシ','SNS'], [77,6,4,3,2,2,1,1], C);
+
+/* ── Q5 購入金額 ── */
+const q5C = ['#AAAAAA','#E9C46A','#F4A261','#D64933'];
+makeBar('q5Bar', ['購入していない','〜500円','500〜1,000円','1,000円以上'], [43,11,23,15], q5C, false);
+makePie('q5Pie', ['購入していない','〜500円','500〜1,000円','1,000円以上'], [43,11,23,15], q5C);
+
+/* ── Q6 ブース（上位4のみラベル） ── */
+const q6L = ['いも煮JAPAN（山形市）','福島県伊達市','秋田県湯沢市（漆工房等）','秋田県八峰町（お魚kitchen）','ピーチホリデイ（福島市）','道の駅かくだ（角田市）','置賜農業振興協議会','Route 227s\' café','コーヒーロースター多賀城','川内村（福島県）','SAKURAIZE（石川町）','田村市（福島県）','工房こひな（白石市）'];
+const q6D = [33,18,15,14,12,10,6,6,4,3,2,2,1];
+makeBar('q6Bar', q6L, q6D, C, true);
+makePie('q6Pie', q6L, q6D, C, 4, 0.10);
+
+/* ── Q7 関心 ── */
+const q7C = ['#2A9D8F','#E0D8CF'];
+makeBar('q7Bar', ['関心が高まった','特に変わらない'], [83,9], q7C, false);
+makePie('q7Pie', ['関心が高まった','特に変わらない'], [83,9], q7C, undefined, 0.05);
+
+/* ── Q8 感想（上位4のみラベル） ── */
+const q8L = ['東北の魅力がよく伝わった','東北に行ってみたくなった','雰囲気がよかった','また開催してほしい','次回もぜひ来たい','アクセスがよかった','イートインを広くしてほしい','観光情報をもっと知りたかった'];
+const q8D = [59,28,22,19,14,7,5,4];
+makeBar('q8Bar', q8L, q8D, C, true);
+makePie('q8Pie', q8L, q8D, C, 4, 0.12);
+</script>
+</body>
+</html>
