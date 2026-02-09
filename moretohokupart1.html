@@ -116,6 +116,8 @@ const smartPiePlugin = {
     const outerLeft = [];
     const outerRight = [];
 
+    const innerLabels = [];
+
     meta.data.forEach((arc, i) => {
       if (!topSet.has(i)) return;
       const v = data[i];
@@ -134,25 +136,16 @@ const smartPiePlugin = {
 
       if (ratio >= threshold) {
         // ── 大きいセグメント: 円内にラベル ──
-        const labelR = outerR * 0.6;
-        const lx = cx + labelR * cos;
-        const ly = cy + labelR * sin;
-
-        ctx.save();
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 18px "Noto Sans JP", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0,0,0,0.4)';
-        ctx.shadowBlur = 3;
-
-        const lines = txt.split('\n');
-        const lineH = 22;
-        const startY = ly - (lines.length - 1) * lineH / 2;
-        lines.forEach((line, li) => {
-          ctx.fillText(line, lx, startY + li * lineH);
+        innerLabels.push({
+          angle: midAngle,
+          radius: outerR * 0.6,
+          outerR,
+          centerX: cx,
+          centerY: cy,
+          lines: txt.split('\n'),
+          baseFont: 18,
+          sliceSize: arc.endAngle - arc.startAngle
         });
-        ctx.restore();
       } else {
         // ── 小さいセグメント: 引き出し線で外へ ──
         const isRight = cos >= 0;
@@ -169,6 +162,70 @@ const smartPiePlugin = {
         };
         if (isRight) outerRight.push(item); else outerLeft.push(item);
       }
+    });
+
+    // 円内ラベルの重なり調整（フォント縮小 + 内側移動）
+    const placedInner = [];
+    innerLabels
+      .sort((a, b) => b.sliceSize - a.sliceSize)
+      .forEach(label => {
+        let fontSize = label.baseFont;
+        let radius = label.radius;
+        let tries = 0;
+        let box;
+
+        while (tries < 12) {
+          const lx = label.centerX + radius * Math.cos(label.angle);
+          const ly = label.centerY + radius * Math.sin(label.angle);
+          ctx.save();
+          ctx.font = `bold ${fontSize}px "Noto Sans JP", sans-serif`;
+          const lineH = fontSize + 4;
+          const maxWidth = Math.max(...label.lines.map(line => ctx.measureText(line).width));
+          const height = lineH * label.lines.length;
+          ctx.restore();
+          box = {
+            x: lx - maxWidth / 2,
+            y: ly - height / 2,
+            w: maxWidth,
+            h: height,
+            lx,
+            ly,
+            fontSize,
+            lineH,
+            lines: label.lines
+          };
+
+          const overlap = placedInner.some(p => {
+            return (
+              box.x < p.x + p.w &&
+              box.x + box.w > p.x &&
+              box.y < p.y + p.h &&
+              box.y + box.h > p.y
+            );
+          });
+
+          if (!overlap) break;
+          fontSize = Math.max(12, fontSize - 1);
+          radius = Math.max(label.outerR * 0.35, radius - label.outerR * 0.04);
+          tries += 1;
+        }
+        if (box) placedInner.push(box);
+      });
+
+    // 円内ラベル描画
+    placedInner.forEach(label => {
+      ctx.save();
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${label.fontSize}px "Noto Sans JP", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.4)';
+      ctx.shadowBlur = 3;
+      const startY = label.ly - (label.lines.length - 1) * label.lineH / 2;
+      label.lines.forEach((line, li) => {
+        ctx.fillText(line, label.lx, startY + li * label.lineH);
+      });
+      ctx.restore();
     });
 
     // 重なり回避
